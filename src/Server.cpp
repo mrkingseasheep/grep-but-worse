@@ -1,4 +1,5 @@
 #include <cctype>
+#include <cmath>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -29,6 +30,7 @@ void print_word(const char* input_line, const char* pattern) {
 // random havard prof yapping (but its useful)
 // https://www.cs.princeton.edu/courses/archive/spr09/cos333/beautiful.html
 bool match_pattern(const char* input_line, const char* pattern);
+bool match_all(const char* input_line, const char* pattern);
 
 bool group_match(const char* input_line, const char* pattern) {
     std::vector<char> charMatches;
@@ -88,10 +90,33 @@ bool match_optional(const char* input_line, const char* pattern) {
 }
 
 bool either_match(const char* input_line, const char* pattern) {
-    std::vector<char> word;
-    while (*pattern++ != ')') {
-        if (*pattern)
+    std::string newPattern = pattern;
+    size_t beg = newPattern.find("(");
+    size_t mid = newPattern.find("|");
+    size_t end = newPattern.find(")");
+    size_t endEnd = newPattern.size();
+
+    std::string word1 = newPattern.substr(beg + 1, mid - 1 - beg - 1);
+    std::string word2 = newPattern.substr(mid + 1, end - 1 - mid - 1);
+    std::string remainder = newPattern.substr(end + 1, endEnd - end - 1);
+    if (end + 1 >= endEnd) {
+        remainder = "";
     }
+    word1 += remainder;
+    word2 += remainder;
+    std::cout << word1 << std::endl;
+    std::cout << word2 << std::endl;
+    return match_all(input_line, word1.c_str()) ||
+           match_all(input_line, word2.c_str());
+
+    /*std::string word1 = std::substr()*/
+
+    /*std::vector<char> word;*/
+    /*std::vector<char> word2;*/
+    /*int cnt = 0;*/
+    /*int cnt2 = 0;*/
+    /*get_word(word, pattern + 1, cnt);*/
+    /*get_word(word2, pattern + cnt + 2, cnt2);*/
 }
 
 bool match_pattern(const char* input_line, const char* pattern) {
