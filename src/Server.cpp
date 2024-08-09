@@ -68,10 +68,32 @@ bool group_match(const char* input_line, const char* pattern) {
     }
 }
 
+bool match_one_or_more(const char* input_line, const char* pattern) {
+    char wanted = *pattern;
+    int occr = 0;
+    while (wanted == *(input_line + occr)) {
+        ++occr;
+    }
+    return match_pattern(input_line + occr, pattern + 2);
+}
+
+bool match_optional(const char* input_line, const char* pattern) {
+    char wanted = *pattern;
+    if (*input_line == wanted) {
+        return match_pattern(input_line + 1, pattern + 2);
+    } else {
+        return match_pattern(input_line, pattern + 2);
+    }
+}
+
 bool match_pattern(const char* input_line, const char* pattern) {
     print_word(input_line, pattern);
     if (*pattern == '\0') {
         return true;
+    }
+
+    if (*pattern == '.') {
+        return match_pattern(input_line + 1, pattern + 1);
     }
 
     if (*pattern == '[') {
@@ -93,8 +115,17 @@ bool match_pattern(const char* input_line, const char* pattern) {
         return (*input_line == '\0');
     }
 
+    if (*(pattern + 1) == '?') {
+        return match_optional(input_line, pattern);
+    }
+
     if (*input_line == *pattern) {
-        return match_pattern(input_line + 1, pattern + 1);
+        char nextChar = *(pattern + 1);
+        if (nextChar == '+') {
+            return match_one_or_more(input_line, pattern);
+        } else {
+            return match_pattern(input_line + 1, pattern + 1);
+        }
     }
     return false;
 }
