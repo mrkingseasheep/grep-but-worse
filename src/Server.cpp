@@ -32,6 +32,10 @@ bool group_match(const char* input_line, const char* pattern) {
     bool inverse = false;
     int endBracket = 1;
 
+    if (*input_line == '\0') {
+        return false;
+    }
+
     while (*(pattern + endBracket) != '\0') {
         char curChar = *(pattern + endBracket);
         ++endBracket;
@@ -68,24 +72,18 @@ bool match_pattern(const char* input_line, const char* pattern) {
         return true;
     }
 
-    if (*input_line == '\0') {
-        return false;
-    }
     if (*pattern == '[') {
         return group_match(input_line, pattern);
     }
 
     if (*pattern == '\\') {
         char escCode = *(pattern + 1);
-        std::cout << "IN \\\\ section" << std::endl;
         if (escCode == 'd' && isdigit(*input_line)) {
-            std::cout << "IS DIGIT" << std::endl;
             return match_pattern(input_line + 1, pattern + 2);
         }
         if (escCode == 'w' && isalnum(*input_line)) {
             return match_pattern(input_line + 1, pattern + 2);
         }
-        std::cout << "nOT GOOD" << std::endl;
         return false;
     }
 
@@ -99,9 +97,14 @@ bool match_all(const char* input_line, const char* pattern) {
     do {
         std::cout << "---------------------------------------------"
                   << std::endl;
-        if (*input_line == '\n') {
-            return false;
+        if (*pattern == '^') {
+            char startChar = *(pattern + 1);
+            if (*input_line != startChar) {
+                return false;
+            }
+            return match_pattern(input_line + 1, pattern + 2);
         }
+
         if (match_pattern(input_line, pattern)) {
             return true;
         }
