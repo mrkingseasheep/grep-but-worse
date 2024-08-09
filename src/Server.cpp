@@ -4,35 +4,30 @@
 #include <string>
 #include <vector>
 
-void print_word(const char* input_line, const char* pattern) {
-    for (int i = 0; i < 1000; ++i) {
-        char cur = *(input_line + i);
-        if (cur == '\0') {
-            break;
-        }
-        std::cout << cur;
-    }
-    std::cout << " : ";
-    for (int i = 0; i < 1000; ++i) {
-        char cur = *(pattern + i);
-        if (cur == '\0') {
-            break;
-        }
-        std::cout << cur;
-    }
-    std::cout << std::endl;
-}
+// helper function, no actual need
+/*void print_word(const std::string input_line, const std::string pattern) {*/
+/*    for (int i = 0; i < 1000; ++i) {*/
+/*        char cur = *(input_line + i);*/
+/*        if (cur == '\0') {*/
+/*            break;*/
+/*        }*/
+/*        std::cout << cur;*/
+/*    }*/
+/*    std::cout << " : ";*/
+/*    for (int i = 0; i < 1000; ++i) {*/
+/*        char cur = *(pattern + i);*/
+/*        if (cur == '\0') {*/
+/*            break;*/
+/*        }*/
+/*        std::cout << cur;*/
+/*    }*/
+/*    std::cout << std::endl;*/
+/*}*/
 
-// this is gonna be a long refactor
-// list of missing features
-// todo, group match and others do not handle . and other symbols
-// https://app.codecrafters.io/courses/grep/stages/sh9?repo=2e976eb6-1248-4212-8746-c70fa948d07b
-// random havard prof yapping (but its useful)
-// https://www.cs.princeton.edu/courses/archive/spr09/cos333/beautiful.html
-bool match_pattern(const char* input_line, const char* pattern);
-bool match_all(const char* input_line, const char* pattern);
+bool match_pattern(const std::string input_line, const std::string pattern);
+bool match_all(const std::string input_line, const std::string pattern);
 
-bool group_match(const char* input_line, const char* pattern) {
+bool group_match(const std::string input_line, const std::string pattern) {
     std::vector<char> charMatches;
     bool inverse = false;
     int endBracket = 1;
@@ -71,7 +66,8 @@ bool group_match(const char* input_line, const char* pattern) {
     }
 }
 
-bool match_one_or_more(const char* input_line, const char* pattern) {
+bool match_one_or_more(const std::string input_line,
+                       const std::string pattern) {
     char wanted = *pattern;
     int occr = 0;
     while (wanted == *(input_line + occr)) {
@@ -80,7 +76,7 @@ bool match_one_or_more(const char* input_line, const char* pattern) {
     return match_pattern(input_line + occr, pattern + 2);
 }
 
-bool match_optional(const char* input_line, const char* pattern) {
+bool match_optional(const std::string input_line, const std::string pattern) {
     char wanted = *pattern;
     if (*input_line == wanted) {
         return match_pattern(input_line + 1, pattern + 2);
@@ -89,7 +85,7 @@ bool match_optional(const char* input_line, const char* pattern) {
     }
 }
 
-bool either_match(const char* input_line, const char* pattern) {
+bool either_match(const std::string input_line, const std::string pattern) {
     std::string newPattern = pattern;
     size_t beg = newPattern.find("(");
     size_t mid = newPattern.find("|");
@@ -119,7 +115,7 @@ bool either_match(const char* input_line, const char* pattern) {
     /*get_word(word2, pattern + cnt + 2, cnt2);*/
 }
 
-bool match_pattern(const char* input_line, const char* pattern) {
+bool match_pattern(const std::string input_line, const std::string pattern) {
     print_word(input_line, pattern);
     if (*pattern == '\0') {
         return true;
@@ -167,7 +163,7 @@ bool match_pattern(const char* input_line, const char* pattern) {
     return false;
 }
 
-bool match_all(const char* input_line, const char* pattern) {
+bool match_all(const std::string input_line, const std::string pattern) {
     do {
         std::cout << "---------------------------------------------"
                   << std::endl;
@@ -186,7 +182,7 @@ bool match_all(const char* input_line, const char* pattern) {
     return false;
 }
 
-int main(int argc, char* argv[]) {
+int main(int argc, std::string argv[]) {
     std::cout << std::unitbuf;
     std::cerr << std::unitbuf;
 
@@ -205,11 +201,11 @@ int main(int argc, char* argv[]) {
 
     std::string input_line;
     std::getline(std::cin, input_line);
-    const char* c_input_line = input_line.c_str();
-    const char* c_pattern = pattern.c_str();
+    /*const std::string c_input_line = input_line.c_str();*/
+    /*const std::string c_pattern = pattern.c_str();*/
 
     try {
-        if (match_all(c_input_line, c_pattern)) {
+        if (match_all(input_line, pattern)) {
             return 0;
         } else {
             return 1;
