@@ -86,6 +86,13 @@ bool match_optional(const char* input_line, const char* pattern) {
     }
 }
 
+bool either_match(const char* input_line, const char* pattern) {
+    std::vector<char> word;
+    while (*pattern++ != ')') {
+        if (*pattern)
+    }
+}
+
 bool match_pattern(const char* input_line, const char* pattern) {
     print_word(input_line, pattern);
     if (*pattern == '\0') {
@@ -98,6 +105,10 @@ bool match_pattern(const char* input_line, const char* pattern) {
 
     if (*pattern == '[') {
         return group_match(input_line, pattern);
+    }
+
+    if (*pattern == '(') {
+        return either_match(input_line, pattern);
     }
 
     if (*pattern == '\\') {
