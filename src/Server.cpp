@@ -23,7 +23,9 @@ void print_word(const char* input_line, const char* pattern) {
 }
 
 // this is gonna be a long refactor
+// list of missing features
 // https://app.codecrafters.io/courses/grep/stages/sh9?repo=2e976eb6-1248-4212-8746-c70fa948d07b
+// random havard prof yapping (but its useful)
 // https://www.cs.princeton.edu/courses/archive/spr09/cos333/beautiful.html
 bool match_pattern(const char* input_line, const char* pattern);
 
@@ -85,6 +87,10 @@ bool match_pattern(const char* input_line, const char* pattern) {
             return match_pattern(input_line + 1, pattern + 2);
         }
         return false;
+    }
+
+    if (*pattern == '$') {
+        return (*input_line == '\0');
     }
 
     if (*input_line == *pattern) {
