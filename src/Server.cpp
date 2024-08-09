@@ -4,185 +4,118 @@
 #include <string>
 #include <vector>
 
-// helper function, no actual need
-/*void print_word(const std::string input_line, const std::string pattern) {*/
-/*    for (int i = 0; i < 1000; ++i) {*/
-/*        char cur = *(input_line + i);*/
-/*        if (cur == '\0') {*/
-/*            break;*/
-/*        }*/
-/*        std::cout << cur;*/
-/*    }*/
-/*    std::cout << " : ";*/
-/*    for (int i = 0; i < 1000; ++i) {*/
-/*        char cur = *(pattern + i);*/
-/*        if (cur == '\0') {*/
-/*            break;*/
-/*        }*/
-/*        std::cout << cur;*/
-/*    }*/
-/*    std::cout << std::endl;*/
-/*}*/
+bool has_pattern(const char* input, const char* pattern);
+bool match_all(const char* input, const char* pattern);
 
-bool match_pattern(const std::string input_line, const std::string pattern);
-bool match_all(const std::string input_line, const std::string pattern);
+void print_word(const char* input, const char* pattern) {
+    do {
+        std::cout << *input;
+    } while (*input++ != '\0');
+    std::cout << " : ";
+    do {
+        std::cout << *pattern;
+    } while (*pattern++ != '\0');
+    std::cout << std::endl;
+}
 
-bool group_match(const std::string input_line, const std::string pattern) {
-    std::vector<char> charMatches;
-    bool inverse = false;
-    int endBracket = 1;
-
-    if (*input_line == '\0') {
-        return false;
-    }
-
-    while (*(pattern + endBracket) != '\0') {
-        char curChar = *(pattern + endBracket);
-        ++endBracket;
-        if (curChar == ']') {
-            break;
-        }
-
-        if (curChar == '^') {
-            inverse = true;
-            continue;
-        }
-
-        charMatches.push_back(curChar);
-    }
-
-    bool containsChar = false;
-    for (char curChar : charMatches) {
-        if (curChar == *input_line) {
-            containsChar = true;
-            break;
+bool has_espace_char(const char* input, const char* pattern) {
+    if (*(pattern + 1) == 'd') {
+        if (isdigit(*input)) {
+            return has_pattern(input + 1, pattern + 2);
         }
     }
 
-    if (containsChar != inverse) {
-        return match_pattern(input_line + 1, pattern + endBracket + 1);
-    } else {
-        return false;
+    if (*(pattern + 1) == 'w') {
+        if (isalnum(*input)) {
+            return has_pattern(input + 1, pattern + 2);
+        }
     }
+
+    if (*(pattern + 1) == '\\') {
+        if (*pattern == *input) {
+            return has_pattern(input + 2, pattern + 2);
+        }
+    }
+
+    return false;
 }
 
-bool match_one_or_more(const std::string input_line,
-                       const std::string pattern) {
-    char wanted = *pattern;
-    int occr = 0;
-    while (wanted == *(input_line + occr)) {
-        ++occr;
+bool has_char_group(const char* input, const char* pattern) {
+    // find all char in group
+    std::vector<char> charGroup;
+    bool negativeGroup = (*(pattern + 1) == '^');
+    int idx = negativeGroup + 1;
+
+    while (*(pattern + idx) != ']') {
+        charGroup.push_back(*(pattern + idx));
+        ++idx;
     }
-    return match_pattern(input_line + occr, pattern + 2);
+
+    std::cout << negativeGroup << std::endl;
+    for (char curChar : charGroup) {
+        std::cout << curChar << std::endl;
+    }
+
+    for (auto i = charGroup.cbegin(); i != charGroup.cend(); ++i) {
+        if (*i == '\\') {
+        }
+    }
+
+    return false;
 }
 
-bool match_optional(const std::string input_line, const std::string pattern) {
-    char wanted = *pattern;
-    if (*input_line == wanted) {
-        return match_pattern(input_line + 1, pattern + 2);
-    } else {
-        return match_pattern(input_line, pattern + 2);
-    }
-}
+bool has_pattern(const char* input, const char* pattern) {
+    print_word(input, pattern);
 
-bool either_match(const std::string input_line, const std::string pattern) {
-    std::string newPattern = pattern;
-    size_t beg = newPattern.find("(");
-    size_t mid = newPattern.find("|");
-    size_t end = newPattern.find(")");
-    size_t endEnd = newPattern.size();
-
-    std::string word1 = newPattern.substr(beg + 1, mid - 1 - beg - 1);
-    std::string word2 = newPattern.substr(mid + 1, end - 1 - mid - 1);
-    std::string remainder = newPattern.substr(end + 1, endEnd - end - 1);
-    if (end + 1 >= endEnd) {
-        remainder = "";
-    }
-    word1 += remainder;
-    word2 += remainder;
-    std::cout << word1 << std::endl;
-    std::cout << word2 << std::endl;
-    return match_all(input_line, word1.c_str()) ||
-           match_all(input_line, word2.c_str());
-
-    /*std::string word1 = std::substr()*/
-
-    /*std::vector<char> word;*/
-    /*std::vector<char> word2;*/
-    /*int cnt = 0;*/
-    /*int cnt2 = 0;*/
-    /*get_word(word, pattern + 1, cnt);*/
-    /*get_word(word2, pattern + cnt + 2, cnt2);*/
-}
-
-bool match_pattern(const std::string input_line, const std::string pattern) {
-    print_word(input_line, pattern);
+    // if pattern is empty, rest of input doesn't matter
     if (*pattern == '\0') {
         return true;
     }
 
-    if (*pattern == '.') {
-        return match_pattern(input_line + 1, pattern + 1);
+    if (*pattern == '\\') {
+        return has_espace_char(input, pattern);
     }
 
     if (*pattern == '[') {
-        return group_match(input_line, pattern);
+        return has_char_group(input, pattern);
     }
 
-    if (*pattern == '(') {
-        return either_match(input_line, pattern);
-    }
-
-    if (*pattern == '\\') {
-        char escCode = *(pattern + 1);
-        if (escCode == 'd' && isdigit(*input_line)) {
-            return match_pattern(input_line + 1, pattern + 2);
-        }
-        if (escCode == 'w' && isalnum(*input_line)) {
-            return match_pattern(input_line + 1, pattern + 2);
+    if (*pattern == '.') {
+        if (*input != '\0') {
+            return has_pattern(input + 1, pattern + 1);
         }
         return false;
     }
 
     if (*pattern == '$') {
-        return (*input_line == '\0');
+        return *input == '\0';
     }
 
-    if (*(pattern + 1) == '?') {
-        return match_optional(input_line, pattern);
+    // if both chars are the same
+    if (*input == *pattern) {
+        return has_pattern(input + 1, pattern + 1);
     }
 
-    if (*input_line == *pattern) {
-        char nextChar = *(pattern + 1);
-        if (nextChar == '+') {
-            return match_one_or_more(input_line, pattern);
-        } else {
-            return match_pattern(input_line + 1, pattern + 1);
-        }
-    }
+    // in case nothing happens
     return false;
 }
 
-bool match_all(const std::string input_line, const std::string pattern) {
-    do {
-        std::cout << "---------------------------------------------"
-                  << std::endl;
-        if (*pattern == '^') {
-            char startChar = *(pattern + 1);
-            if (*input_line != startChar) {
-                return false;
-            }
-            return match_pattern(input_line + 1, pattern + 2);
-        }
+bool root_match(const char* input, const char* pattern) {
+    // get rid of edge case
+    if (*pattern == '^') {
+        return *input == *(pattern + 1);
+    }
 
-        if (match_pattern(input_line, pattern)) {
+    do {
+        std::cout << "-------------------------------------\n";
+        if (has_pattern(input, pattern)) {
             return true;
         }
-    } while (*input_line++ != '\0');
+    } while (*input++ != '\0');
     return false;
 }
 
-int main(int argc, std::string argv[]) {
+int main(int argc, char* argv[]) {
     std::cout << std::unitbuf;
     std::cerr << std::unitbuf;
 
@@ -199,15 +132,19 @@ int main(int argc, std::string argv[]) {
         return 1;
     }
 
-    std::string input_line;
-    std::getline(std::cin, input_line);
-    /*const std::string c_input_line = input_line.c_str();*/
-    /*const std::string c_pattern = pattern.c_str();*/
+    std::string input;
+    std::getline(std::cin, input);
+    const char* c_input = input.c_str();
+    const char* c_pattern = pattern.c_str();
 
     try {
-        if (match_all(input_line, pattern)) {
+        if (root_match(c_input, c_pattern)) {
+            std::cout << "-------------------------------------\n";
+            std::cout << "<PATTERN FOUND>" << std::endl;
             return 0;
         } else {
+            std::cout << "-------------------------------------\n";
+            std::cout << "<PATTERN NOT FOUND>" << std::endl;
             return 1;
         }
     } catch (const std::runtime_error& e) {
