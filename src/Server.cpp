@@ -4,6 +4,8 @@
 #include <string>
 #include <vector>
 
+const int MAX_RECURSE_DEPTH = 10;
+
 bool has_pattern(const char* input, const char* pattern,
                  std::string& prevPattern);
 bool match_all(const char* input, const char* pattern);
@@ -18,8 +20,7 @@ void print_word(const char* input, const char* pattern,
         std::cout << *pattern;
     } while (*pattern++ != '\0');
     std::cout << std::endl;
-    std::cout << "=========================================> PREV CMD: "
-              << prevPattern << std::endl;
+    std::cout << "==> PREV CMD: " << prevPattern << std::endl;
 }
 
 bool has_espace_char(const char* input, const char* pattern,
@@ -96,6 +97,12 @@ bool has_char_group(const char* input, const char* pattern,
     return false;
 }
 
+bool has_repeated_pattern(const char* input, const char* pattern,
+                          std::string& prevPattern) {
+    return has_pattern(input, pattern + 1, prevPattern) ||
+           has_pattern(input, pattern - prevPattern.length(), prevPattern);
+}
+
 bool has_pattern(const char* input, const char* pattern,
                  std::string& prevPattern) {
     print_word(input, pattern, prevPattern);
@@ -119,6 +126,10 @@ bool has_pattern(const char* input, const char* pattern,
             return has_pattern(input + 1, pattern + 1, prevPattern);
         }
         return false;
+    }
+
+    if (*pattern == '+') {
+        return has_repeated_pattern(input, pattern, prevPattern);
     }
 
     if (*pattern == '$') {
